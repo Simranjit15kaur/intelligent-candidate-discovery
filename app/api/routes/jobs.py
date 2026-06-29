@@ -1,11 +1,16 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, select
 from app.api.deps import get_session
 from app.db.models import Jobs
 from app.models.job import JobCreate, JobRead
 
 router = APIRouter()
+
+
+@router.get("", response_model=list[JobRead])
+def list_jobs(session: Session = Depends(get_session)):
+    return session.exec(select(Jobs)).all()
 
 
 @router.post("", response_model=JobRead)

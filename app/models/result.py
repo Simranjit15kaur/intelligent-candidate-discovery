@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
-from app.db.models import ScanStatus
+from app.db.models import RunStatus 
 
 
 class RankedCandidateResult(BaseModel):
@@ -23,7 +23,7 @@ class RankedCandidateResult(BaseModel):
 class PipelineRunRead(BaseModel):
     run_id: uuid.UUID
     job_id: uuid.UUID
-    status: ScanStatus
+    status: RunStatus
     created_at: datetime
     completed_at: datetime | None
     error: str | None

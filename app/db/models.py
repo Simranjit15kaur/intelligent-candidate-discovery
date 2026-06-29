@@ -3,7 +3,6 @@ from sqlalchemy import DateTime
 import uuid
 
 from sqlmodel import Field, SQLModel
-import uuid
 from sqlalchemy import Column, JSON
 from datetime import datetime , timezone
 from enum import Enum
@@ -45,7 +44,7 @@ class Candidates(SQLModel, table = True):
         sa_column = Column(JSON)
     )
     last_active: datetime| None = Field(
-        defaul = None,
+        default = None,
         sa_type = DateTime(timezone = True)
     )
     profile_complete : float = Field(ge = 0.0, le = 1.0)
@@ -59,7 +58,7 @@ class Candidates(SQLModel, table = True):
     )
 
 
-class ScanStatus(str, Enum):
+class RunStatus(str, Enum):
     pending = "pending"
     running = "running"
     completed = "completed"
@@ -69,7 +68,7 @@ class PipelineRun(SQLModel, table = True):
     __tablename__ = "pipeline_runs"
     id: uuid.UUID = Field(default_factory= uuid.uuid4, primary_key = True)
     job_id : uuid.UUID = Field(default = None, foreign_key= 'jobs.id')
-    status : ScanStatus = Field(default = ScanStatus.pending)
+    status : RunStatus = Field(default = RunStatus.pending)
     created_at: datetime = Field(
         default_factory= get_datetime_utc,
         sa_type = DateTime(timezone = True)

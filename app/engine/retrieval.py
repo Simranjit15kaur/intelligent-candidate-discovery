@@ -1,6 +1,7 @@
 import bm25s
 from typing import Any
 from langchain_community.vectorstores import FAISS
+from tenacity import retry, wait_exponential, stop_after_attempt
 
 from app.db.models import Candidates, Jobs
 from app.services.embeddings import embedding_model
@@ -111,13 +112,20 @@ def retrieve(
     # ── Stage 1B: Embedding search via FAISS ────────────────────────────────
     metadatas = [{"candidate_index": i} for i in range(len(candidates))]
 
-    vectorstore = FAISS.from_texts(
-        candidate_docs,
-        embedding_model,
-        metadatas=metadatas,
-    )
+    @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
+    def build_vectorstore():
+        return FAISS.from_texts(
+            candidate_docs,
+            embedding_model,
+            metadatas=metadatas,
+        )
 
-    query_embedding = embedding_model.embed_query(query)
+    @retry(wait=wait_exponential(multiplier=1, min=2, max=10), stop=stop_after_attempt(3))
+    def embed_query():
+        return embedding_model.embed_query(query)
+
+    vectorstore = build_vectorstore()
+    query_embedding = embed_query()
 
     vector_results = vectorstore.similarity_search_with_score_by_vector(
         query_embedding,

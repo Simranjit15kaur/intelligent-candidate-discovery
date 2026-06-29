@@ -72,7 +72,7 @@ def run(job_id: uuid.UUID, session: Session) -> PipelineRunRead:
         # ── Stage 4/5: LLM Re-rank + Explanation ────────────────────────────
         results: list[RankedCandidateResult] = rerank_explain.run(
             ranked_df=ranked_df,
-            candidates=eligible,
+            candidates=all_candidates,
             job=job,
         )
 
@@ -101,6 +101,7 @@ def run(job_id: uuid.UUID, session: Session) -> PipelineRunRead:
 
     except Exception as e:
         # ── Mark run as failed ───────────────────────────────────────────────
+        session.rollback()
         pipeline_run.status = RunStatus.failed
         pipeline_run.error = str(e)
         pipeline_run.completed_at = datetime.now(timezone.utc)

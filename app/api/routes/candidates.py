@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from sqlmodel import Session
+from sqlmodel import Session, select
 from app.api.deps import get_session
 from app.db.models import Candidates
 from app.models.candidate import CandidateCreate, CandidateRead
@@ -34,6 +34,8 @@ def parse_date_field(value) -> datetime | None:
         return None
     try:
         dt = pd.to_datetime(value)
+        if pd.isna(dt):
+            return None
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.to_pydatetime()
@@ -77,6 +79,11 @@ def row_to_candidate_create(row: dict) -> CandidateCreate:
         profile_complete=parse_float_field(row.get("profile_complete"), default=0.0),
         raw_data=raw_data if raw_data else None,
     )
+
+
+@router.get("", response_model=list[CandidateRead])
+def list_candidates(session: Session = Depends(get_session)):
+    return session.exec(select(Candidates)).all()
 
 
 @router.post("/upload", response_model=list[CandidateRead])
@@ -123,6 +130,8 @@ async def upload_candidates(
     for i, row in enumerate(df.to_dict(orient="records")):
         try:
             candidate_data = row_to_candidate_create(row)
+            if not candidate_data.name or not candidate_data.profile_text:
+                raise ValueError("Name and profile_text cannot be empty")
 
             db_candidate = Candidates(
                 name=candidate_data.name,
