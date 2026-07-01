@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Intelligent Candidate Discovery - Backend
 
 This is the backend service for the Intelligent Candidate Discovery platform. It provides a robust, AI-powered pipeline to search, filter, score, and explain candidate matches for specific job descriptions.
@@ -76,3 +77,6 @@ The API will be available at `http://localhost:8000`.
 
 - **Formatting & Linting:** The project uses `ruff` for fast linting and formatting.
 - **Testing:** `pytest` and `pytest-asyncio` are configured for running tests.
+=======
+# intelligent-candidate-discovery
+>>>>>>> 7475ab6286359dd94545e99d9d79a417c994e833
