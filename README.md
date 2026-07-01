@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-# Intelligent Candidate Discovery - Backend
+
+# Intelligent Candidate Discovery
 
 This is the backend service for the Intelligent Candidate Discovery platform. It provides a robust, AI-powered pipeline to search, filter, score, and explain candidate matches for specific job descriptions.
 
